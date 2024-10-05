@@ -4,14 +4,16 @@ import EventEmitter from "events";
 import { Transformer } from "./Transformer";
 import { Packet } from "./Packet";
 import { PacketTranformer } from "./PacketTranformer";
+import { PacketProcess } from "./PacketProcess";
 
 export interface TcpAdapterContext {
   dataReslover: DataReslover;
   packetTranformer: Transformer<Packet>;
+  packetProcess: PacketProcess;
 }
 
 export interface TcpAdapterEventMap {
-  error: [Error];
+  error: [Error, Packet?];
   disconnect: [boolean];
   packet: [Packet];
   data: [Buffer];
@@ -22,6 +24,7 @@ export interface TcpAdapterEventMap {
 export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
   private dataReslover: DataReslover;
   private packetTranformer: Transformer<Packet>;
+  private packetProcess: PacketProcess;
   constructor(
     private socket: Socket,
     context: Partial<TcpAdapterContext> = {}
@@ -29,7 +32,7 @@ export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
     super();
     this.dataReslover = context.dataReslover || new DataReslover();
     this.packetTranformer = context.packetTranformer || new PacketTranformer();
-
+    this.packetProcess = context.packetProcess || new PacketProcess(this);
     this.init();
   }
 
@@ -46,17 +49,9 @@ export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
     this.emit("data", data);
     try {
       const packets = this.packetTranformer.decode(data);
-
-      packets.forEach((packet) => {
-        this.emit("packet", packet);
-        if (packet.id !== -1) {
-          this.dataReslover.resolve(packet.id, packet.data);
-          return this.emit("packet_in_resolving", packet);
-        }
-        this.emit("packet_out_resolving", packet);
-      });
+      this.packetProcess.process(packets);
     } catch (error) {
-      this.emit("error", new TypeError("INVALID_PACKET"));
+      this.emit("error", new TypeError("INVALID_PACKET"), new Packet(data));
     }
   }
 

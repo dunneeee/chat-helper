@@ -8,7 +8,7 @@ class PacketOutput extends TcpOutput_1.TcpOutput {
         super(adapter);
         this.packet = packet;
     }
-    async response(data, type = this.packet.type, slient = false) {
+    async response(data, slient = false, type = this.packet.type) {
         const packet = new Packet_1.Packet(data, type, this.packet.id);
         return this.send(packet, slient).then(() => packet);
     }
