@@ -12,6 +12,9 @@ class PacketOutput extends TcpOutput_1.TcpOutput {
         const packet = new Packet_1.Packet(data, type, this.packet.id);
         return this.send(packet, slient).then(() => packet);
     }
+    async responseError(data, slient = false) {
+        return this.response(data, slient, Packet_1.PacketTypeDefault.Error);
+    }
 }
 exports.PacketOutput = PacketOutput;
 //# sourceMappingURL=PacketOutput.js.map
