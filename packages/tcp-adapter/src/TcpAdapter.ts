@@ -13,7 +13,7 @@ export interface TcpAdapterContext {
 }
 
 export interface TcpAdapterEventMap {
-  error: [Error, Packet?];
+  error: [unknown, Packet?];
   disconnect: [boolean];
   packet: [Packet];
   data: [Buffer];

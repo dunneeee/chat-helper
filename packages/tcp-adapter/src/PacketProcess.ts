@@ -18,12 +18,12 @@ export class PacketProcess {
 
   protected handleSpecialPacket(packet: Packet) {
     if (packet.type === PacketTypeDefault.Error)
-      return this.adapter.emit("error", new Error(packet.data), packet);
+      return this.adapter.emit("error", packet.data, packet);
     return this.adapter.emit("packet_out_resolving", packet);
   }
   protected handleNormalPacket(packet: Packet) {
     if (packet.type === PacketTypeDefault.Error) {
-      const err = new Error(packet.data);
+      const err = packet.data;
       this.adapter.emit("error", err, packet);
       return this.adapter.getDataResolver().reject(packet.id, err);
     }

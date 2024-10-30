@@ -1,2 +1,3 @@
-packages/test-adapter/
 node_modules/
+packages/*/node_modules/
+packages/tcp-adapter/*.tgz
