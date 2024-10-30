@@ -2,7 +2,7 @@
   "name": "tcp-adapter",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "types": "dist/types",
+  "types": "dist/types/index.d.ts",
   "scripts": {
     "build": "rimraf dist && tsc",
     "test": "jest"
