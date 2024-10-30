@@ -4,15 +4,15 @@ export interface PendingHandler {
   timeout: NodeJS.Timeout;
 }
 
-export interface DataResloverConfig {
+export interface DataResolverConfig {
   timeout: number;
 }
 
-export class DataReslover {
+export class DataResolver {
   private pendingHandlers: Map<number, PendingHandler> = new Map();
-  private config: DataResloverConfig;
+  private config: DataResolverConfig;
   private countId = 1;
-  constructor(config: Partial<DataResloverConfig> = {}) {
+  constructor(config: Partial<DataResolverConfig> = {}) {
     this.config = {
       timeout: 60000,
       ...config,

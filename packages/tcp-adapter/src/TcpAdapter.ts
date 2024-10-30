@@ -1,14 +1,14 @@
 import { Socket } from "net";
-import { DataReslover } from "./DataReslover";
+import { DataResolver } from "./DataResolver";
 import EventEmitter from "events";
 import { Transformer } from "./Transformer";
 import { Packet } from "./Packet";
-import { PacketTranformer } from "./PacketTranformer";
 import { PacketProcess } from "./PacketProcess";
+import { PacketTransformer } from "./PacketTransformer";
 
 export interface TcpAdapterContext {
-  dataReslover: DataReslover;
-  packetTranformer: Transformer<Packet>;
+  dataResolver: DataResolver;
+  packetTransformer: Transformer<Packet>;
   packetProcess: PacketProcess;
 }
 
@@ -22,16 +22,17 @@ export interface TcpAdapterEventMap {
 }
 
 export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
-  private dataReslover: DataReslover;
-  private packetTranformer: Transformer<Packet>;
+  private dataResolver: DataResolver;
+  private packetTransformer: Transformer<Packet>;
   private packetProcess: PacketProcess;
   constructor(
     private socket: Socket,
     context: Partial<TcpAdapterContext> = {}
   ) {
     super();
-    this.dataReslover = context.dataReslover || new DataReslover();
-    this.packetTranformer = context.packetTranformer || new PacketTranformer();
+    this.dataResolver = context.dataResolver || new DataResolver();
+    this.packetTransformer =
+      context.packetTransformer || new PacketTransformer();
     this.packetProcess = context.packetProcess || new PacketProcess(this);
     this.init();
   }
@@ -40,15 +41,15 @@ export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
     this.emit("error", error);
   }
 
-  private handleSocetDisconnect(hadError: boolean) {
-    this.dataReslover.clearQuietly();
+  private handleSocketDisconnect(hadError: boolean) {
+    this.dataResolver.clearQuietly();
     this.emit("disconnect", hadError);
   }
 
-  private handleSocetData(data: Buffer) {
+  private handleSocketData(data: Buffer) {
     this.emit("data", data);
     try {
-      const packets = this.packetTranformer.decode(data);
+      const packets = this.packetTransformer.decode(data);
       this.packetProcess.process(packets);
     } catch (error) {
       this.emit("error", new TypeError("INVALID_PACKET"), new Packet(data));
@@ -63,19 +64,19 @@ export class TcpAdapter extends EventEmitter<TcpAdapterEventMap> {
     return this.socket;
   }
 
-  getDataReslover() {
-    return this.dataReslover;
+  getDataResolver() {
+    return this.dataResolver;
   }
 
-  getPacketTranformer() {
-    return this.packetTranformer;
+  getPacketTransformer() {
+    return this.packetTransformer;
   }
 
   private init() {
     this.socket.on("error", this.handleSocketError.bind(this));
 
-    this.socket.on("close", this.handleSocetDisconnect.bind(this));
+    this.socket.on("close", this.handleSocketDisconnect.bind(this));
 
-    this.socket.on("data", this.handleSocetData.bind(this));
+    this.socket.on("data", this.handleSocketData.bind(this));
   }
 }

@@ -9,14 +9,14 @@ export class PacketOutput extends TcpOutput {
 
   async response<R = any>(
     data: R,
-    slient = false,
+    silent = false,
     type: number = this.packet.type
   ): Promise<Packet<R>> {
     const packet = new Packet(data, type, this.packet.id);
-    return this.send(packet, slient).then(() => packet);
+    return this.send(packet, silent).then(() => packet);
   }
 
-  async responseError<R = any>(data: R, slient = false) {
-    return this.response(data, slient, PacketTypeDefault.Error);
+  async responseError<R = any>(data: R, silent = false) {
+    return this.response(data, silent, PacketTypeDefault.Error);
   }
 }

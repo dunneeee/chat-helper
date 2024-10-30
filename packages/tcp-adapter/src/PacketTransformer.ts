@@ -1,7 +1,7 @@
 import { Packet, PacketTypeDefault } from "./Packet";
 import { Transformer } from "./Transformer";
 
-export class PacketTranformer implements Transformer<Packet> {
+export class PacketTransformer implements Transformer<Packet> {
   static LENGTH_HEADER_SIZE = 4;
   static EVENT_HEADER_SIZE = 4;
   decode<T = any>(data: Buffer): Packet<T | string>[] {
@@ -10,19 +10,20 @@ export class PacketTranformer implements Transformer<Packet> {
     while (data.length > 0) {
       const packetLength = data.subarray(
         0,
-        PacketTranformer.LENGTH_HEADER_SIZE
+        PacketTransformer.LENGTH_HEADER_SIZE
       );
       const packetEvent = data.subarray(
-        PacketTranformer.LENGTH_HEADER_SIZE,
-        PacketTranformer.LENGTH_HEADER_SIZE + PacketTranformer.EVENT_HEADER_SIZE
+        PacketTransformer.LENGTH_HEADER_SIZE,
+        PacketTransformer.LENGTH_HEADER_SIZE +
+          PacketTransformer.EVENT_HEADER_SIZE
       );
       const bodyLength =
         packetLength.readUInt32BE(0) -
-        PacketTranformer.LENGTH_HEADER_SIZE -
-        PacketTranformer.EVENT_HEADER_SIZE;
+        PacketTransformer.LENGTH_HEADER_SIZE -
+        PacketTransformer.EVENT_HEADER_SIZE;
       const headerLength =
-        PacketTranformer.LENGTH_HEADER_SIZE +
-        PacketTranformer.EVENT_HEADER_SIZE;
+        PacketTransformer.LENGTH_HEADER_SIZE +
+        PacketTransformer.EVENT_HEADER_SIZE;
       const body = data.subarray(headerLength, headerLength + bodyLength);
       const type = packetEvent.readUInt32BE(0);
 
@@ -38,8 +39,8 @@ export class PacketTranformer implements Transformer<Packet> {
   }
 
   encode(data: Packet): Buffer {
-    const lengthHeader = Buffer.alloc(PacketTranformer.LENGTH_HEADER_SIZE);
-    const eventHeader = Buffer.alloc(PacketTranformer.EVENT_HEADER_SIZE);
+    const lengthHeader = Buffer.alloc(PacketTransformer.LENGTH_HEADER_SIZE);
+    const eventHeader = Buffer.alloc(PacketTransformer.EVENT_HEADER_SIZE);
     const body = data.toBuffer();
     eventHeader.writeUInt32BE(
       typeof data.type === "number" ? data.type : PacketTypeDefault.Data,

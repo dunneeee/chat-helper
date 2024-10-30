@@ -16,7 +16,7 @@ export class TcpOutput {
       }
 
       const socket = this.adapter.getSocket();
-      const data = this.adapter.getPacketTranformer().encode(packet);
+      const data = this.adapter.getPacketTransformer().encode(packet);
 
       socket.write(data, (error) => {
         if (error) {
@@ -39,7 +39,7 @@ export class TcpOutput {
         : new Packet(packetOrData, type);
 
     return new Promise<R>((resolve, reject) => {
-      const id = this.adapter.getDataReslover().register(resolve, reject);
+      const id = this.adapter.getDataResolver().register(resolve, reject);
       packet.id = id;
       this.send(packet, false).catch(reject);
     });
